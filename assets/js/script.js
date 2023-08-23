@@ -1,30 +1,5 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
-$(document).ready(function () {
-  
-  const timeBlocks = document.querySelectorAll('.time-block');
-
-  timeBlocks.forEach(timeBlock => {
-      const inputField = timeBlock.querySelector('input');
-      const timeBlockId = timeBlock.id;
-
-      // Load saved value from local storage on page load
-      const savedValue = localStorage.getItem(timeBlockId);
-      if (savedValue) {
-          inputField.value = savedValue;
-      }
-
-      // Add input event listener to save input value to local storage
-      inputField.addEventListener('input', (event) => {
-          const inputValue = event.target.value;
-          localStorage.setItem(timeBlockId, inputValue);
-      });
-  });
-
-});
-
-// TODO: Add code to display the current date in the header of the page.
+$(document).ready(function() {
+// Code to display the current date in the header of the page.
 function updateDateAndDay() {
   const now = new Date();
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -39,70 +14,66 @@ updateDateAndDay();
 setInterval(updateDateAndDay, 86400000); 
 
 // Get the current hour using Day.js
-const currentHour = dayjs().hour();
+// const currentHour = dayjs().hour();
         
 // Display the current hour in the "current-hour" element
-const currentHourElement = document.getElementById('currenthour');currentHourElement.textContent = `Current Hour: ${currentHour}`;
+// const currentHourElement = document.getElementById('currenthour');
+// currentHourElement.textContent = `Current Hour: ${currentHour}`;
 
-function generateHourlyRows() {
-  const hourlyRowsContainer = document.getElementById('hourly-rows');
-  const now = new Date();
-  const currentHour = now.getHours();
 
-    for (let hour = 9; hour <= 17; hour++) {
-        const hourRow = document.createElement('div');
-        hourRow.id = `hour-${hour}`;
-        hourRow.classList.add('row', 'time-block');
-                
-        if (hour < currentHour) {
-            hourRow.classList.add('past');
-        } else if (hour === currentHour) {
-            hourRow.classList.add('present');
-        } else {
-            hourRow.classList.add('future');
-        }
+  function generateHourlyRows() {
+      const hourlyRowsContainer = $('#hourly-rows');
+      const now = new Date();
+      const currentHour = now.getHours();
 
-  const hourCol = document.createElement('div');
-        hourCol.classList.add('col-2', 'col-md-1', 'hour', 'text-center', 'py-3');
-        hourCol.textContent = `${hour % 12 || 12} ${hour >= 12 ? 'PM' : 'AM'}`;
-        hourRow.appendChild(hourCol);
+      for (let hour = 9; hour <= 17; hour++) {
+          const hourRow = $('<div>');
+          hourRow.attr('id', `hour-${hour}`);
+          hourRow.addClass('row time-block');
+          
+          if (hour < currentHour) {
+              hourRow.addClass('past');
+          } else if (hour === currentHour) {
+              hourRow.addClass('present');
+          } else {
+              hourRow.addClass('future');
+          }
 
-  const textarea = document.createElement('textarea');
-        textarea.classList.add('col-8', 'col-md-10', 'description');
-        textarea.rows = 3;
-        hourRow.appendChild(textarea);
+          const hourCol = $('<div>');
+          hourCol.addClass('col-2 col-md-1 hour text-center py-3');
+          hourCol.text(`${hour % 12 || 12} ${hour >= 12 ? 'PM' : 'AM'}`);
+          hourRow.append(hourCol);
 
-  const button = document.createElement('button');
-        button.classList.add('btn', 'saveBtn', 'col-2', 'col-md-1');
-        button.setAttribute('aria-label', 'save');
+          const textarea = $('<textarea>');
+          textarea.addClass('col-8 col-md-10 description');
+          textarea.attr('rows', 3);
+          hourRow.append(textarea);
 
-  const icon = document.createElement('i');
-        icon.classList.add('fas', 'fa-save');
-        button.appendChild(icon);
-        hourRow.appendChild(button);
+          const button = $('<button>');
+          button.addClass('btn saveBtn col-2 col-md-1');
+          button.attr('aria-label', 'save');
+          button.on('click', function() {
+              const textareaContent = textarea.val();
+              localStorage.setItem(hourRow.attr('id'), textareaContent);
+          });
 
-        hourlyRowsContainer.appendChild(hourRow);
-    }
-}
+          const icon = $('<i>');
+          icon.addClass('fas fa-save');
+          button.append(icon);
+          hourRow.append(button);
 
-// Call the function to generate hourly rows
-generateHourlyRows();
+          // Load saved content from local storage
+          const savedContent = localStorage.getItem(hourRow.attr('id'));
+          if (savedContent) {
+              textarea.val(savedContent);
+          }
 
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
+          hourlyRowsContainer.append(hourRow);
+      }
+  }
+
+  // Call the function to generate hourly rows
+  generateHourlyRows();
+});
+
   
